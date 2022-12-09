@@ -14,9 +14,10 @@ class _HomeState extends State<Home> {
   bool isFetching = true;
 
   Future<dynamic> getAllPublicRepositories() async {
-    http
-        .get(Uri.parse("https://api.github.com/users/freeCodeCamp/repos"))
-        .then((response) {
+    http.get(Uri.parse("https://api.github.com/users/chetannager/repos"),
+        headers: {
+          "Authorization": "Bearer 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"
+        }).then((response) {
       setState(() {
         isFetching = false;
         repositories = json.decode(response.body);
@@ -46,6 +47,10 @@ class _HomeState extends State<Home> {
               itemCount: repositories.length,
               itemBuilder: (context, i) {
                 return ListTile(
+                  leading: Image.network(
+                    "https://cdn-icons-png.flaticon.com/512/25/25231.png",
+                    width: 35.0,
+                  ),
                   title: Text(repositories[i]["name"]),
                   subtitle: Commits(repositories[i]["name"]),
                   onTap: () {},
@@ -67,13 +72,12 @@ class Commits extends StatefulWidget {
 
 class _CommitsState extends State<Commits> {
   Future<int> getAllRepositoriesCommits() async {
-    return http
-        .get(Uri.parse(
-            "https://api.github.com/repos/freeCodeCamp/${widget.repoName}/commits"))
-        .then((response) {
-      print(json.decode(response.body));
-      return json.decode(response.body).length;
-    });
+    return http.get(
+        Uri.parse(
+            "https://api.github.com/repos/chetannager/${widget.repoName}/commits"),
+        headers: {
+          "Authorization": "Bearer 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"
+        }).then((response) => json.decode(response.body).length);
   }
 
   @override
@@ -85,7 +89,7 @@ class _CommitsState extends State<Commits> {
           return Text("commits : ${snapshot.data} ");
         }
 
-        return const Text("Fetching..");
+        return const Text("Fetching commits..");
       },
     );
   }
