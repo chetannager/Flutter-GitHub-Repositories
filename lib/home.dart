@@ -46,11 +46,47 @@ class _HomeState extends State<Home> {
               itemCount: repositories.length,
               itemBuilder: (context, i) {
                 return ListTile(
-                  title: Text(repositories[i]["full_name"]),
+                  title: Text(repositories[i]["name"]),
+                  subtitle: Commits(repositories[i]["name"]),
                   onTap: () {},
                 );
               },
             ),
+    );
+  }
+}
+
+class Commits extends StatefulWidget {
+  String repoName;
+
+  Commits(this.repoName, {Key? key}) : super(key: key);
+
+  @override
+  State<Commits> createState() => _CommitsState();
+}
+
+class _CommitsState extends State<Commits> {
+  Future<int> getAllRepositoriesCommits() async {
+    return http
+        .get(Uri.parse(
+            "https://api.github.com/repos/freeCodeCamp/${widget.repoName}/commits"))
+        .then((response) {
+      print(json.decode(response.body));
+      return json.decode(response.body).length;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<int>(
+      future: getAllRepositoriesCommits(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return Text("commits : ${snapshot.data} ");
+        }
+
+        return const Text("Fetching..");
+      },
     );
   }
 }
