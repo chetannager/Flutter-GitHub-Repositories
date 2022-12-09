@@ -1,6 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+const GITHUB_AUTH_TOKEN = "";
+const GITHUB_USER = "freeCodeCamp";
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -14,10 +18,13 @@ class _HomeState extends State<Home> {
   bool isFetching = true;
 
   Future<dynamic> getAllPublicRepositories() async {
-    http.get(Uri.parse("https://api.github.com/users/chetannager/repos"),
+    http.get(Uri.parse("https://api.github.com/users/$GITHUB_USER/repos"),
         headers: {
-          "Authorization": "Bearer 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"
+          "Authorization": "Bearer $GITHUB_AUTH_TOKEN"
         }).then((response) {
+      if (kDebugMode) {
+        print(json.decode(response.body));
+      }
       setState(() {
         isFetching = false;
         repositories = json.decode(response.body);
@@ -51,7 +58,7 @@ class _HomeState extends State<Home> {
                     "https://cdn-icons-png.flaticon.com/512/25/25231.png",
                     width: 35.0,
                   ),
-                  title: Text(repositories[i]["name"]),
+                  title: Text(repositories[i]["full_name"]),
                   subtitle: Commits(repositories[i]["name"]),
                   onTap: () {},
                 );
@@ -74,9 +81,9 @@ class _CommitsState extends State<Commits> {
   Future<int> getAllRepositoriesCommits() async {
     return http.get(
         Uri.parse(
-            "https://api.github.com/repos/chetannager/${widget.repoName}/commits"),
+            "https://api.github.com/repos/$GITHUB_USER/${widget.repoName}/commits"),
         headers: {
-          "Authorization": "Bearer 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"
+          "Authorization": "Bearer $GITHUB_AUTH_TOKEN"
         }).then((response) => json.decode(response.body).length);
   }
 
@@ -85,11 +92,14 @@ class _CommitsState extends State<Commits> {
     return FutureBuilder<int>(
       future: getAllRepositoriesCommits(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Text("commits : ${snapshot.data} ");
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const Text("Fetching commits..");
+          case ConnectionState.done:
+            return Text("commits : ${snapshot.data} ");
+          default:
+            return const Text("Fetching error");
         }
-
-        return const Text("Fetching commits..");
       },
     );
   }
