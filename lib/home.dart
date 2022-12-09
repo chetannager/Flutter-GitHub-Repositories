@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const GITHUB_AUTH_TOKEN = "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";
+const GITHUB_AUTH_TOKEN = "";
 const GITHUB_USER = "freeCodeCamp";
 
 class Home extends StatefulWidget {
